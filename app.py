@@ -57,7 +57,7 @@ def init_system():
         api_base="https://api.groq.com/openai/v1",
         api_key=os.environ.get("GROQ_API_KEY"),
         is_chat_model=True,
-        timeout=300.0
+        timeout=300.0,
     )
     
     # Connect to ChromaDB
