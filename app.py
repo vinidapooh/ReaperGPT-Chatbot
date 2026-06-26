@@ -2,16 +2,18 @@ import streamlit as st
 import chromadb
 import os
 import sys
+import json
 from llama_index.core import (
     VectorStoreIndex, 
     StorageContext, 
     Settings, 
-    PromptTemplate
+    PromptTemplate,
+    Document
 )
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import AutoMergingRetriever
+from llama_index.core.node_parser import HierarchicalNodeParser, get_leaf_nodes
 from llama_index.vector_stores.chroma import ChromaVectorStore
-# --- CHANGED: Use the standard OpenAI class wrapper ---
 from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.huggingface_api import HuggingFaceInferenceAPIEmbedding
 
@@ -62,26 +64,50 @@ def init_system():
     )
     
     # Connect to ChromaDB
-    db = chromadb.PersistentClient(path="./reaper_db")
-   # Connect to ChromaDB
-    db = chromadb.PersistentClient(path="./reaper_db")
-    
-    # FIXED: Perfectly indented & uses get_or_create_collection to eliminate crashes
+    persist_dir = "./reaper_db"
+    db = chromadb.PersistentClient(path=persist_dir)
     chroma_collection = db.get_or_create_collection("reaper_knowledge")
-
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     
-    # Load Storage Context
-    storage_context = StorageContext.from_defaults(
-        vector_store=vector_store, 
-        persist_dir="./reaper_db" 
-    )
+    # Check if we need to build the storage tracking context from scratch
+    docstore_path = os.path.join(persist_dir, "docstore.json")
     
-    # Build Index from the existing vector store
-    index = VectorStoreIndex.from_vector_store(
-        vector_store, 
-        storage_context=storage_context
-    )
+    if not os.path.exists(docstore_path):
+        # Fallback: Build indices on-the-fly from forum_data.json using serverless embeddings
+        storage_context = StorageContext.from_defaults(vector_store=vector_store)
+        
+        if os.path.exists("forum_data.json"):
+            with open("forum_data.json", "r") as f:
+                raw_data = json.load(f)
+            
+            documents = []
+            for item in raw_data:
+                text_content = f"Title: {item.get('title', '')}\n\n{item.get('content', '')}"
+                doc = Document(
+                    text=text_content,
+                    metadata={
+                        "title": item.get("title", "Reaper Technical Docs"),
+                        "url": item.get("url", ""),
+                        "source_type": item.get("source_type", "forum")
+                    }
+                )
+                documents.append(doc)
+            
+            # Parse layout structure for AutoMergingRetriever
+            node_parser = HierarchicalNodeParser.from_defaults(chunk_sizes=[2048, 512, 128])
+            nodes = node_parser.get_nodes_from_documents(documents)
+            leaf_nodes = get_leaf_nodes(nodes)
+            
+            storage_context.docstore.add_documents(nodes)
+            index = VectorStoreIndex(leaf_nodes, storage_context=storage_context)
+            storage_context.persist(persist_dir=persist_dir)
+        else:
+            # Fallback to an empty index framework if data file is missing
+            index = VectorStoreIndex.from_vector_store(vector_store, storage_context=storage_context)
+    else:
+        # Load pre-existing configuration layout safely
+        storage_context = StorageContext.from_defaults(vector_store=vector_store, persist_dir=persist_dir)
+        index = VectorStoreIndex.from_vector_store(vector_store, storage_context=storage_context)
     
     # SETUP: AutoMergingRetriever
     base_retriever = index.as_retriever(similarity_top_k=8) 
