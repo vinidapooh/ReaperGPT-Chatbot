@@ -1,17 +1,15 @@
 # Core Framework
-llama-index==0.12.*
+llama-index-core==0.12.*
 
 # Integrations
 llama-index-vector-stores-chroma
 llama-index-llms-openai-like
 llama-index-embeddings-huggingface-api
 
-# Database & Infrastructure
-chromadb
+# Lightweight database client instead of the full engine
+chromadb-client
+
+# Utilities
 python-dotenv
-
-# PDF Processing (Used by SimpleDirectoryReader)
 pypdf
-
-# UI Framework
 streamlit
