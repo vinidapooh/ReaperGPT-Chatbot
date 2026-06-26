@@ -63,15 +63,11 @@ def init_system():
     
     # Connect to ChromaDB
     db = chromadb.PersistentClient(path="./reaper_db")
-   try:
-        chroma_collection = db.get_collection("reaper_knowledge")
-    except (ValueError, Exception):
-        # If the collection doesn't exist on GitHub, trigger ingestion right now!
-        st.info("⚡ Initializing cloud knowledge collection from forum data...")
-        import subprocess
-        subprocess.run(["python", "ingest_all.py"], check=True)
-        chroma_collection = db.get_collection("reaper_knowledge")
-    # ----------------------------------------
+   # Connect to ChromaDB
+    db = chromadb.PersistentClient(path="./reaper_db")
+    
+    # FIXED: Perfectly indented & uses get_or_create_collection to eliminate crashes
+    chroma_collection = db.get_or_create_collection("reaper_knowledge")
 
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     
