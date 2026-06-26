@@ -2,6 +2,7 @@ import streamlit as st
 import chromadb
 import os
 import sys
+import zipfile
 import json
 from llama_index.core import (
     VectorStoreIndex, 
@@ -66,6 +67,14 @@ def init_system():
     
     # Connect to ChromaDB
     persist_dir = "./reaper_db"
+    zip_path = "reaper_db.zip"
+    
+    # --- STATIC UNZIP FALLBACK ---
+    # Extracts the complete local index framework into the runtime container immediately
+    if not os.path.exists(persist_dir) and os.path.exists(zip_path):
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(".")
+            
     db = chromadb.PersistentClient(path=persist_dir)
     chroma_collection = db.get_or_create_collection("reaper_knowledge")
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
