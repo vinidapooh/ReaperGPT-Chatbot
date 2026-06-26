@@ -1,12 +1,12 @@
-# Core Framework
-llama-index-core==0.12.*
+# Main Framework (Handles core dependencies cleanly)
+llama-index
 
 # Integrations
 llama-index-vector-stores-chroma
 llama-index-llms-openai-like
 llama-index-embeddings-huggingface-api
 
-# Database & Infrastructure (Full version required for local folder persistence)
+# Database & Infrastructure
 chromadb
 
 # Utilities
