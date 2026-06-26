@@ -6,4 +6,4 @@ chromadb
 python-dotenv
 pypdf
 streamlit
-groq
+llama-index-llms-groq
