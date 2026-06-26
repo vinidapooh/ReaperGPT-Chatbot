@@ -6,4 +6,3 @@ chromadb
 python-dotenv
 pypdf
 streamlit
-
