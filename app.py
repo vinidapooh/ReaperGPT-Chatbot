@@ -11,9 +11,9 @@ from llama_index.core import (
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import AutoMergingRetriever
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.llms.openai_like import OpenAILike
+# --- CHANGED: Use the standard OpenAI class wrapper ---
+from llama_index.llms.openai import OpenAI
 from llama_index.embeddings.huggingface_api import HuggingFaceInferenceAPIEmbedding
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 # --- 1. THE EXPERT PROMPT (Few-Shot Pattern) ---
 REAPER_EXPERT_PROMPT = PromptTemplate(
@@ -47,16 +47,17 @@ REAPER_EXPERT_PROMPT = PromptTemplate(
 # --- 2. SYSTEM INITIALIZATION ---
 @st.cache_resource
 def init_system():
-    # 1. Serverless Cloud Embeddings: Zero download time, zero memory footprint
-    # Uses the same model but runs it completely over API via Hugging Face's free tier
-    Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+    # 1. Serverless Cloud Embeddings
+    Settings.embed_model = HuggingFaceInferenceAPIEmbedding(
+        model_name="BAAI/bge-small-en-v1.5"
+    )
     
-    # 2. Redirect LlamaIndex orchestration directly to Groq's high-speed free tier
-    Settings.llm = OpenAILike(
+    # 2. Redirect standard OpenAI wrapper directly to Groq's endpoint
+    Settings.llm = OpenAI(
         model="llama3-70b-8192", 
         api_base="https://api.groq.com/openai/v1",
         api_key=os.environ.get("GROQ_API_KEY"),
-        is_chat_model=True,
+        temperature=0.7,
         timeout=300.0,
     )
     
