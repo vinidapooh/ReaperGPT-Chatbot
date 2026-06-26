@@ -50,7 +50,6 @@ def init_system():
     # 1. Serverless Cloud Embeddings: Zero download time, zero memory footprint
     # Uses the same model but runs it completely over API via Hugging Face's free tier
     Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
-    )
     
     # 2. Redirect LlamaIndex orchestration directly to Groq's high-speed free tier
     Settings.llm = OpenAILike(
