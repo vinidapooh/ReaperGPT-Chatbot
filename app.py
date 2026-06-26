@@ -1,5 +1,6 @@
 import streamlit as st
 import chromadb
+from llama_index.llms.groq import Groq
 import os
 import sys
 import zipfile
