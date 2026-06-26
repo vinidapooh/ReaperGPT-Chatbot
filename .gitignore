@@ -1,0 +1,19 @@
+# --- Python Environment ---
+.venv/
+venv/
+ENV/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Environment Variables / Secrets ---
+.env
+.env.*
+secrets.toml
+
+# --- Operating System Clutter ---
+.DS_Store
+Thumbs.db
+reaper_db/
