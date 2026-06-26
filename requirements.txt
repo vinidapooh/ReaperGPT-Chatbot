@@ -6,8 +6,8 @@ llama-index-vector-stores-chroma
 llama-index-llms-openai-like
 llama-index-embeddings-huggingface-api
 
-# Lightweight database client instead of the full engine
-chromadb-client
+# Database & Infrastructure (Full version required for local folder persistence)
+chromadb
 
 # Utilities
 python-dotenv
