@@ -8,6 +8,7 @@ llama-index-llms-ollama
 llama-index-llms-google-genai
 llama-index-llms-anthropic
 llama-index-embeddings-huggingface
+llama-index-embeddings-huggingface-api
 
 # Database & Infrastructure
 chromadb
