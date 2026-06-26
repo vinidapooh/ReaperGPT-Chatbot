@@ -63,10 +63,19 @@ def init_system():
     
     # Connect to ChromaDB
     db = chromadb.PersistentClient(path="./reaper_db")
-    chroma_collection = db.get_collection("reaper_knowledge")
+   try:
+        chroma_collection = db.get_collection("reaper_knowledge")
+    except (ValueError, Exception):
+        # If the collection doesn't exist on GitHub, trigger ingestion right now!
+        st.info("⚡ Initializing cloud knowledge collection from forum data...")
+        import subprocess
+        subprocess.run(["python", "ingest_all.py"], check=True)
+        chroma_collection = db.get_collection("reaper_knowledge")
+    # ----------------------------------------
+
     vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
     
-    # Load Storage Context (This pulls in the docstore.json family tree)
+    # Load Storage Context
     storage_context = StorageContext.from_defaults(
         vector_store=vector_store, 
         persist_dir="./reaper_db" 
@@ -78,7 +87,7 @@ def init_system():
         storage_context=storage_context
     )
     
-    # SETUP: AutoMergingRetriever (The "Zoom-Out" Logic)
+    # SETUP: AutoMergingRetriever
     base_retriever = index.as_retriever(similarity_top_k=8) 
     retriever = AutoMergingRetriever(
         base_retriever, 
@@ -86,7 +95,6 @@ def init_system():
         verbose=True
     )
     
-    # Create the Query Engine with our custom prompt
     return RetrieverQueryEngine.from_args(
         retriever, 
         streaming=True,
