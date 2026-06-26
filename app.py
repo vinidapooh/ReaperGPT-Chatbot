@@ -95,12 +95,16 @@ def init_system():
                 documents.append(doc)
             
             # Parse layout structure for AutoMergingRetriever
-            node_parser = HierarchicalNodeParser.from_defaults(chunk_sizes=[2048, 512, 128])
+            node_parser = HierarchicalNodeParser.from_defaults(chunk_sizes=[2048, 512, 256])
             nodes = node_parser.get_nodes_from_documents(documents)
             leaf_nodes = get_leaf_nodes(nodes)
             
             storage_context.docstore.add_documents(nodes)
-            index = VectorStoreIndex(leaf_nodes, storage_context=storage_context)
+            index = VectorStoreIndex(
+                leaf_nodes, 
+                storage_context=storage_context, 
+                insert_batch_size=10
+            )
             storage_context.persist(persist_dir=persist_dir)
         else:
             # Fallback to an empty index framework if data file is missing
