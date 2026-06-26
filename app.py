@@ -51,7 +51,8 @@ REAPER_EXPERT_PROMPT = PromptTemplate(
 def init_system():
     # 1. Serverless Cloud Embeddings
     Settings.embed_model = HuggingFaceInferenceAPIEmbedding(
-        model_name="BAAI/bge-small-en-v1.5"
+        model_name="BAAI/bge-small-en-v1.5",
+        token=os.environ.get("HF_TOKEN")
     )
     
     # 2. Redirect standard OpenAI wrapper directly to Groq's endpoint
