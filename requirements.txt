@@ -3,11 +3,7 @@ llama-index==0.12.*
 
 # Integrations
 llama-index-vector-stores-chroma
-llama-index-embeddings-huggingface
-llama-index-llms-ollama
-llama-index-llms-google-genai
-llama-index-llms-anthropic
-llama-index-embeddings-huggingface
+llama-index-llms-openai-like
 llama-index-embeddings-huggingface-api
 
 # Database & Infrastructure
